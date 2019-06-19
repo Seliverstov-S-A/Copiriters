@@ -1,0 +1,109 @@
+<html>
+<head>
+<script 
+			  src="https://code.jquery.com/jquery-3.4.1.js"
+			  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+			  crossorigin="anonymous"></script>
+			  
+<script>
+    function ViewComments(){
+        setTimeout(ViewComments, 7000);
+        var com = $("#dialog_text");
+        var res = $.ajax({
+                type: "GET",
+                url: "/povar/comments/{{ data['zid'] }}",
+                async: false
+            });
+        if (res.responseJSON.status != "Success"){
+            alert(res.responseJSON.status);
+            return
+        }
+        com.val(res.responseJSON.data);
+    }
+    function MakeComment(){
+        var com = $("#dialog_mes").val();
+        var res = $.ajax({
+                type: "POST",
+                url: "/povar/comment/{{ data['zid'] }}",
+                data: {'mes':com},
+                async: false
+            });
+        if (res.responseJSON.status != "Success"){
+            alert(res.responseJSON.status);
+            return
+        }
+        $("#dialog_mes").val("");
+    }
+    $(document).ready(function () {
+        var psconsole = $('#dialog_text');
+        if(psconsole.length)
+            psconsole.scrollTop(psconsole[0].scrollHeight - psconsole.height());
+        ViewComments();
+        $("#make_comment").click(function(e){
+            MakeComment();
+        });
+    });
+</script>
+</head>
+<body style="font-family: Arial; font-size:20; background:url(/stat/orig4.jpg);  background-size: cover;background-repeat:no-repeat;background-position: center center; ">
+    <div>
+        {% if message %}
+            <div id="msg" style="position: absolute; left:100px; top:10px; color: yellow" onclick="this.style.display='None';">
+				<h1>{{ message }}</h1>
+			</div>
+			<script>
+			function aaa(){
+				$("#msg").hide();
+				window.location="/povar/passpage/{{ data['zid'] }}";
+			}
+			setTimeout("aaa()",10000)
+		</script>
+        {% endif %}
+		<div style="position:absolute; left:40%">
+			{% if uploaded_data %}
+				<a href="/povar/uploads/{{ data['zid'] }}?x={{ random_number  }}">
+				<img style="width:200px" src="/povar/uploads/{{ data['zid'] }}?x={{ random_number  }}" />
+				</a>
+			{% endif %}
+			{% if data %}
+			<h4>{{ data['caption'] }} ({{ data['money'] }} руб.)</h4>
+				{% if data['state_zayavka'] ==  3 %}
+					<h5>Исполнить {{ data['taken_at'] }} и доставить {{ data['add_and_time'] }} </h5>
+				{% elif data['state_zayavka'] ==  4 %}
+					<h5>Исполнить {{ data['taken_at'] }} и доставить {{ data['add_and_time'] }} </h5>
+					<h5>Завершен {{ data['finat'] }}</h5>
+				{% elif data['state_zayavka'] ==  2 %}
+					<h5>Исполнить {{ data['taken_at'] }} и доставить {{ data['add_and_time'] }} </h5>
+					<h5>Отвергнут {{ data['finat'] }}</h5>
+				{% endif %}
+				<div>
+					<textarea  readonly rows="10" cols="45" name="descr_field" type='text' id="descr">{{ data['descr'] }}</textarea>
+				</div>
+			{% endif %}
+			{% if data['state_zayavka'] ==  3 %}
+			<div>Загрузить фотографию сладости</div>
+			<div>
+				<form action='/povar/pass' method="POST" enctype="multipart/form-data">
+					<input type='file' name="appfile"></input>
+					<input type="hidden" name='zid' value="{{ data['zid'] }}"></input>
+					<input type='submit' value='Загрузить'></input>
+				</form>
+			</div>
+			{% endif %}
+		<div>
+			<h4>Диалог</h4>
+			<div>
+				<textarea readonly rows="10" cols="45" id="dialog_text"></textarea>
+			</div>
+			{% if data['state_zayavka'] ==  3 %}
+			<div>
+				<textarea type="text" cols="45" id='dialog_mes' ></textarea>
+			</div>
+			<div>
+				<input   type="button" id="make_comment" value="Добавить"/>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</body>
+</html>

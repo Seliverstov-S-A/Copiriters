@@ -1,0 +1,111 @@
+<html>
+<head>
+<script 
+			  src="https://code.jquery.com/jquery-3.4.1.js"
+			  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+			  crossorigin="anonymous"></script>
+			  
+<script>
+function RefreshTableApp(){
+    var tab = $("#app_table");
+    var res = $.ajax({
+			type: "GET",
+			url: "/povar/listapp",
+			async: false
+		});
+    setTimeout(RefreshTableApp, 30000);
+    if (res.responseJSON.status != "Success"){
+        alert(res.responseJSON.status);
+        return
+    }
+    tab.html("");
+    data_list = res.responseJSON.data;
+    for (var e in res.responseJSON.data){
+        var el = res.responseJSON.data[e];
+        if (el.state == 1){
+            if (el.is_taken != 1){
+                tab.append("<tr><td>"+el.money+" руб.</td><td>"+el.addr_and_time+"</td><td>"+
+                    el.caption+"</td><td>"+el.date+"</td><td>"+
+                    el.is_taken+"</td><td><button class='view'>просмотр</button><button class='take'>"+
+                    "Взять</button></td><td style='display:none'>"+el.descr+
+                    "</td><td style='display:none'>"+el.zid+"</td><tr>");
+            }
+            else{
+                tab.append("<tr><td>$"+el.money+"</td><td>"+el.addr_and_time+"</td><td>"+
+                    el.caption+"</td><td>"+el.date+"</td><td>"+
+                    el.is_taken+"</td><td><button class='view'>просмотр</button><span>Ждем подтверждения</span></td><td style='display:none'>"+el.descr+
+                    "</td><td style='display:none'>"+el.zid+"</td><tr>");
+            }
+        }
+        else if (el.state == 2){
+            tab.append("<tr><td>$"+el.money+"</td><td>"+el.addr_and_time+"</td><td>"+
+                el.caption+"</td><td>"+el.date+"</td><td>"+
+                el.is_taken+"</td><td><button class='view'>просмотр</button><a  href='/povar/passpage/"+
+                el.zid+"'>Сдать</a></td><td style='display:none'>"+el.descr+
+                "</td><td style='display:none'>"+el.zid+"</td><tr>");
+        }
+        else if (el.state == 3){
+            tab.append("<tr><td>$"+el.money+"</td><td>"+el.addr_and_time+"</td><td>"+
+                el.caption+"</td><td>"+el.date+"</td><td>"+
+                el.is_taken+"</td><td><button class='view'>просмотр</button><span>Finished</span></td><td style='display:none'>"+el.descr+
+                "</td><td style='display:none'>"+el.zid+"</td><tr>");
+        }
+        else if (el.state == 4){
+            tab.append("<tr><td>$"+el.money+"</td><td>"+el.addr_and_time+"</td><td>"+
+                el.caption+"</td><td>"+el.date+"</td><td>"+
+                el.is_taken+"</td><td><button class='view'>просмотр</button><span>Canceled</span></td><td style='display:none'>"+el.descr+
+                "</td><td style='display:none'>"+el.zid+"</td><tr>");
+        }
+    }
+    $("#app_table button.view").click(
+        function (e){
+            $("#descr").val(e.target.parentElement.nextSibling.innerHTML);
+        }
+    );
+    $("#app_table button.take").click(
+        function (e){
+            var id = e.target.parentElement.nextSibling.nextSibling.innerHTML;
+            var res = $.ajax({
+                type: "GET",
+                url: "/povar/trytake/"+id,
+                async: false
+            });
+            if (res.responseJSON.status != "Success"){
+                alert(res.responseJSON.status);
+                return
+            }
+            RefreshTableApp();
+        }
+    )
+}
+$(document).ready(function(){
+    RefreshTableApp();
+});
+</script>
+</head>
+<body  style="font-family: Arial; font-size:20; background:url(/stat/orig3.jpg);  background-size: cover;background-repeat:no-repeat;background-position: center center; ">
+    <div style=" background-color: white; width:50%;opacity:0.8">
+		<h3>Повар {{ fio }}(<a href="/logout">Выйти</a>)</h3>
+		<h4>Счет {{ money }} руб.</h4>
+	</div>
+	<div style="left:0%; top:20%; height:100%; position: absolute; background-color: white; width:50%; opacity:0.8">
+		<div>
+			<div>Выберите заказ для исполнения</div>
+			<table >
+				<thead>
+				<tr><td>Стоимость</td><td>Адрес доставки и время</td><td>Название</td><td>Дата создания</td><td>Взят?</td></tr>
+				</thead>
+				<tbody id="app_table">
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<div>Пожелание</div>
+			<div>
+			<textarea  readonly rows="10" cols="45" name="descr_field" type='text' id="descr">
+			</textarea>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

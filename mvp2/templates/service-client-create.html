@@ -1,0 +1,50 @@
+<html>
+<head>
+<script 
+			  src="https://code.jquery.com/jquery-3.4.1.js"
+			  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+			  crossorigin="anonymous"></script>
+<script>
+</script>
+</head>
+<body style="font-family: Arial; font-size:20; background:url(/stat/orig2.jpeg);  background-size: cover;background-repeat:no-repeat;background-position: center center; ">
+	<h4>На счету: {{ money }} руб.</h4>
+	<h4>Зарезервировано: {{ holded_money }} руб.</h4>
+     {% if message %}
+        <div style="position: absolute; left:100px; top:10px; background-color:#c0f0c0" onclick="this.style.display='None';">
+            {{ message }}
+        </div>
+    {% endif %}
+	<div style="left:30%; top:30%; position: absolute;">
+		<table>
+		<tr>
+		<td><a href="/client/list">Список заказов</a></td><td><a href="/client/create">Новый заказ</a></td>
+		</tr>
+		</table>
+		<div>
+			<div>Новый заказ</div>
+			<form action="/client/createapp" method="POST">
+				<table>
+					<tr>
+						<td>Название</td>
+						<td><input name="caption_field" type='text' size="45" /></td>
+					</tr>
+					<tr>
+						<td>Адрес и время доставки</td>
+						<td><input name="address_field" type='text' size="45" /></td>
+					</tr>
+					<tr>
+						<td>Стоимость</td>
+						<td><input name="cost_field" type='text' size="45" /></td>
+					</tr>
+					<tr>
+						<td>Ваши пожелания</td>
+						<td><textarea  rows="10" cols="45" name="descr_field" type='text' ></textarea></td>
+					</tr>
+					<td></td><td><input type="submit" value="Заказать"/></td>
+				</table>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

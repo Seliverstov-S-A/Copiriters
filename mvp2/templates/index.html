@@ -1,0 +1,77 @@
+<html>
+<head>
+<script 
+			  src="https://code.jquery.com/jquery-3.4.1.js"
+			  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+			  crossorigin="anonymous"></script>
+<script>
+
+
+$(document).ready(function(){
+	$("#logintab").click(function(e){
+		$("#logindiv").show();
+		$("#registerdiv").hide();
+		$("#logintab").css("font-weight","bold");
+		$("#registertab").css("font-weight","normal");
+	});
+	$("#registertab").click(function(e){
+		$("#registerdiv").show();
+		$("#logindiv").hide();
+		$("#logintab").css("font-weight","normal");
+		$("#registertab").css("font-weight","bold");
+	});
+});
+</script>
+</head>
+<body style="font-family: Arial; font-size:20; background-image:url(/stat/orig.jpg); background-size: cover;background-repeat:no-repeat;background-position: center center; ">
+    {% if message %}
+        <div id="msg" style="position: absolute; left:90%; top:10px; background-color:#c0f0c0" onclick="this.style.display='None';">
+            {{ message }}
+        </div>
+		<script>
+			function aaa(){
+				$("#msg").hide();
+			}
+			setTimeout("aaa()",10000)
+		</script>
+    {% endif %}
+	<div style="position:absolute; background-color:rgba(100,0,0,150); padding:20px; border-radius: 20px;opacity: 0.7; filter: alpha(Opacity=70);">
+		<span style="color:white; cursor: pointer" id="logintab">Login</span>
+		<span style="color:white; cursor: pointer" id="registertab">Register</span>
+		
+		<div id="logindiv" style=" left:200px; top:200px; color:white;display:none;">
+			<form action="/login">
+				<p>
+					<label>Логин</label>
+					<input name="login_field" type='text' />
+				</p>
+				<p>
+				<label>Пароль</label>
+				<input name="password_field" type='text' />
+				</p>
+				<input type="submit" value="Login"/>
+			</form>
+		</div>
+		<div id="registerdiv"  style="left:600px; top:200px;color:white;display:none;">
+			<form action="/register">
+				 <p>
+					<label>Логин</label>
+					<input name="login_field" type='text' />
+				</p>
+				<p>
+					<label>Пароль</label>
+					<input name="password_field" type='text' />
+				</p>
+				<p>
+					<label>Email</label>
+					<input name="email_field" type='text' />
+				</p>
+				<p>
+					<input value="Buyer" name="role_field" type='hidden' />
+				</p>
+				<input type="submit" value="Register"/>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

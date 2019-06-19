@@ -1,0 +1,140 @@
+<html>
+<head>
+<script 
+			  src="https://code.jquery.com/jquery-3.4.1.js"
+			  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+			  crossorigin="anonymous"></script>
+<script>
+    function ViewComments(){
+        setTimeout(ViewComments, 7000);
+        var com = $("#dialog_text");
+        var res = $.ajax({
+                type: "GET",
+                url: "/client/comments/{{ data['zid'] }}",
+                async: false
+            });
+        if (res.responseJSON.status != "Success"){
+            alert(res.responseJSON.status);
+            return
+        }
+        com.val(res.responseJSON.data);
+    }
+    function MakeComment(){
+        var com = $("#dialog_mes").val();
+        var res = $.ajax({
+                type: "POST",
+                url: "/client/comment/{{ data['zid'] }}",
+                data: {'mes':com},
+                async: false
+            });
+        if (res.responseJSON.status != "Success"){
+            alert(res.responseJSON.status);
+            return
+        }
+        $("#dialog_mes").val("");
+    }
+    $(document).ready(function () {
+        var psconsole = $('#dialog_text');
+        if(psconsole.length)
+            psconsole.scrollTop(psconsole[0].scrollHeight - psconsole.height());
+        ViewComments();
+        $("#make_comment").click(function(e){
+            MakeComment();
+        });
+        $("#confirm").click(function(e){
+            var res = $.ajax({
+                    type: "GET",
+                    url: "/client/finish/{{ data['zid'] }}/1/0",
+                    async: false
+                });
+            if (res.responseJSON.status != "Success"){
+                alert(res.responseJSON.status);
+                return
+            }
+            alert("Вы подтверждаете выполнение заказа и оплачиваете {{ data['money'] }} руб.");
+            window.location="/client/view/{{ data['zid'] }}"
+        });
+        $("reject_stay").click(function(e){
+            var res = $.ajax({
+                    type: "GET",
+                    url: "/client/finish/{{ data['zid'] }}/0/1",
+                    async: false
+                });
+            if (res.responseJSON.status != "Success"){
+                alert(res.responseJSON.status);
+                return
+            }
+            alert("You rejected application and searching new povar");
+            window.location="/client/list";
+        });
+        $("reject_drop").click(function(e){
+            var res = $.ajax({
+                    type: "GET",
+                    url: "/client/finish/{{ data['zid'] }}/0/0",
+                    async: false
+                });
+            if (res.responseJSON.status != "Success"){
+                alert(res.responseJSON.status);
+                return
+            }
+            alert("You rejected application");
+            window.location="/client/list";
+        });
+    });
+</script>
+</head>
+<body style="font-family: Arial; font-size:20; background:url(/stat/1600.jpg);  background-size: cover;background-repeat:no-repeat;background-position: center center; ">
+    <div style="left:90%; position:absolute;">
+		<h3>Вошли как {{ fio }}</h3>
+		<a href="/logout">logout</a>
+	</div>
+     {% if message %}
+        <div style="position: absolute; left:100px; top:10px; background-color:#c0f0c0" onclick="this.style.display='None';">
+            {{ message }}
+        </div>
+    {% endif %}
+	<div style="left:30%; position: absolute;">
+		<div>
+			<div>Показать заказ</div>
+			 {% if message %}
+				<h3>{{ message }}<h3>
+			{% endif %}
+			{% if uploaded_data %}
+					<div>
+						<img style="width:200px" src="/client/uploads/{{ data['zid'] }}?x={{ random_number  }}"></a>
+					</div>
+					{% if data['state'] ==2 %}
+					<div>
+						<div>
+							<input type="button" id="confirm" value="Оплатить"/>
+							<input type="button" id="confirm" value="Отказаться"/>
+						</div>
+					</div>
+					{% endif %}
+			{% endif %}
+			{% if data %}
+				<div>
+				<h4>{{ data['caption'] }} ({{ data['money'] }} руб.)</h4>
+					<h4>Данные повара:{{ data['povar_fio'] }}</h4>
+					<h5>Заказано в {{ data['taken_at'] }} на адрес {{ data['addr_and_time'] }}</h5>
+					<div>
+						<textarea readonly  rows="10" cols="45" name="descr_field" type='text' id="descr">{{ data['descr'] }}</textarea>
+					</div>
+				</div>
+			{% endif %}
+		</div>
+		<div>
+			<h4>Диалог</h4>
+			<div>
+				<textarea readonly rows="10" cols="45" id="dialog_text"></textarea>
+			</div>
+			<div>
+				<textarea type="text" cols="45" id='dialog_mes' ></textarea>
+			</div>
+			<div>
+				<input type="button" id="make_comment" value="Добавить"/>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
